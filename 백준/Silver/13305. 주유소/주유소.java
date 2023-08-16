@@ -21,7 +21,7 @@ public class Main {
 		}
 		
 		int min = Integer.MAX_VALUE;
-		int sum = 0;
+		long sum = 0;
 		for (int i = 0; i < dist.length; i++) {
 			min = Math.min(min, oil[i]);
 			sum += min * dist[i];
