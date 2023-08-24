@@ -1,6 +1,17 @@
 import java.io.*;
 import java.util.*;
 
+/*
+ * 1. 문제 해석
+ * 		회전 초밥집에서 최대한 다양한 초밥을 먹으려고 할 때 
+ * 		손님이 먹을 수 있는 초밥 가짓수의 최댓값을 구한다.
+ * 
+ * 2. 해결 전략
+ * 		Set 자료구조를 이용해 초밥의 종류를 삽입, 삭제하면서 Set 의 개수를 확인한다.
+ * 
+ * 3. 주의점
+ * 
+ * */
 
 public class Main {
 
@@ -23,23 +34,21 @@ public class Main {
 			sushiBelt[i] = Integer.parseInt(br.readLine());
 		}
 
-		Set<Integer> sushiSet = new HashSet<Integer>();
-		int[] sushiArray = new int[d + 1];
+		int cntSushiKind = 0;
+		int[] sushiCntArray = new int[d + 1];
 		for (int i = 0; i < k; i++) {
-			sushiSet.add(sushiBelt[i]);
-			sushiArray[sushiBelt[i]]++;
+			if (sushiCntArray[sushiBelt[i]] == 0) 
+				cntSushiKind++;
+			sushiCntArray[sushiBelt[i]]++;
 		}
 		
-		int ans = sushiSet.size() + (sushiSet.contains(coup) ? 0 : 1);
-		for (int i = 0; i < sushiBelt.length; i++) {
-			int s = sushiBelt[i];
-			if (--sushiArray[s] == 0) {
-				sushiSet.remove(s);
-			}
-			int ns = sushiBelt[(i + k) % N];
-			sushiArray[ns]++;
-			sushiSet.add(ns);
-			ans = Math.max(ans, sushiSet.size() + (sushiArray[coup] > 0 ? 0 : 1));
+		int ans = cntSushiKind + (sushiCntArray[coup] > 0 ? 0 : 1);
+		for (int i = 0, j = k; i < sushiBelt.length; i++, j = (j < N - 1 ? j + 1 : 0)) {
+			if (--sushiCntArray[sushiBelt[i]] == 0) 
+				cntSushiKind--;
+			if (sushiCntArray[sushiBelt[j]]++ == 0) 
+				cntSushiKind++;
+			ans = Math.max(ans, cntSushiKind + (sushiCntArray[coup] > 0 ? 0 : 1));
 		}
 		
 		sb.append(ans);
