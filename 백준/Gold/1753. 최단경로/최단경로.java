@@ -1,88 +1,81 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.PriorityQueue;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
-    public static void main (String[] args) throws IOException {
-        Dijkstra.solve();
-    }
-}
 
-class Dijkstra {
-    private static class Pair implements Comparable<Pair>{
-        int a;
-        int b;
+	static int V, E, K; // 정점 개수, 간선 개수, 시작 정점 번호
+	static StringBuilder sb;
 
-        public Pair(int a, int b) {
-            this.a = a;
-            this.b = b;
-        }
+	static class Node {
+		int v, w;
+		Node next;
 
-        public int compareTo(Pair p) {
-            return this.b - p.b;
-        }
-    }
+		public Node(int v, int w, Node next) {
+			this.v = v;
+			this.w = w;
+			this.next = next;
+		}
+	}
 
-    static void solve() throws IOException {
+	public static void main(String[] args) throws Exception {
 
-        // 입력 받기
-        final int MAX_WEIGHT = 10;
-        int numV, numE;
-        int startV;
-        StringTokenizer st;
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        ArrayList<ArrayList<Pair>> edges = new ArrayList<>();
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		sb = new StringBuilder();
+		StringTokenizer st;
 
-        st = new StringTokenizer(br.readLine());
-        numV = Integer.parseInt(st.nextToken());
-        numE = Integer.parseInt(st.nextToken());
-        st = new StringTokenizer(br.readLine());
-        startV = Integer.parseInt(st.nextToken());
-        for (int i = 0; i < numV + 1; i++)
-            edges.add(new ArrayList<>());
-        for (int i = 0; i < numE; i++) {
-            st = new StringTokenizer(br.readLine());
-            int u = Integer.parseInt(st.nextToken());
-            int v = Integer.parseInt(st.nextToken());
-            int w = Integer.parseInt(st.nextToken());
-            edges.get(u).add(new Pair(v, w));
-        }
+		st = new StringTokenizer(br.readLine());
+		V = Integer.parseInt(st.nextToken());
+		E = Integer.parseInt(st.nextToken());
 
-        // 길이 계산
-        PriorityQueue<Pair> pq = new PriorityQueue<>();
-        int[] dist = new int[numV + 1];
-        final int MAX_DISTANCE = (numV - 1) * MAX_WEIGHT + 1;
+		K = Integer.parseInt(br.readLine());
 
-        Arrays.fill(dist, MAX_DISTANCE);
-        dist[startV] = 0;
-        pq.add(new Pair(startV, 0));
+		Node[] adjList = new Node[V + 1];
 
-        while (!pq.isEmpty()) {
-            Pair vertex = pq.poll();
-            int u = vertex.a;
-            int uDist = vertex.b;
-            if (dist[u] < uDist) continue;
+		for (int i = 0; i < E; i++) {
+			st = new StringTokenizer(br.readLine());
+			int u = Integer.parseInt(st.nextToken());
+			int v = Integer.parseInt(st.nextToken());
+			int w = Integer.parseInt(st.nextToken());
 
-            for (var edge : edges.get(u)) {
-                int v = edge.a;
-                int w = edge.b;
-                if (v <= numV && dist[v] > dist[u] + w){
-                    dist[v] = dist[u] + w;
-                    pq.add(new Pair(v, dist[v]));
-                }
-            }
-        }
+			adjList[u] = new Node(v, w, adjList[u]);
+		}
 
-        for (int i = 1; i < numV + 1; i++) {
-            if (dist[i] < MAX_DISTANCE)
-                System.out.println(dist[i]);
-            else
-                System.out.println("INF");
-        }
-    }
+		boolean[] visited = new boolean[V + 1];
+		int[] minDist = new int[V + 1];
+		PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
+
+		for (int i = 0; i < minDist.length; i++) {
+			minDist[i] = Integer.MAX_VALUE;
+		}
+		minDist[K] = 0;
+		pq.offer(new int[] {K, minDist[K]});
+
+		while (!pq.isEmpty()) {
+			// 최솟값 뽑기
+			int[] minD = pq.poll();
+			int mi = minD[0];
+			int min = minD[1];
+
+			// 방문 체크
+			if (visited[mi])
+				continue;
+			visited[mi] = true;
+
+			// 최솟값 갱신
+			for (Node tmp = adjList[mi]; tmp != null; tmp = tmp.next) {
+				if (!visited[tmp.v] && minDist[tmp.v] > min + tmp.w) {
+					minDist[tmp.v] = min + tmp.w;
+					pq.offer(new int[] {tmp.v, minDist[tmp.v]});
+				}
+			}
+		}
+		
+		for (int i = 1; i < minDist.length; i++) {
+			sb.append(minDist[i] == Integer.MAX_VALUE ? "INF" : minDist[i]).append("\n");
+		}
+
+		System.out.println(sb);
+
+	}
+
 }
