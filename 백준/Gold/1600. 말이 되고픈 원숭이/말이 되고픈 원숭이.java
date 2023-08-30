@@ -1,91 +1,101 @@
-import java.io.*;
-import java.util.*;
-
-/*
- * 1. 문제 해석
- * 		말이 되고픈 원숭이가 움직이면서 도착지점까지 갈 때 그 동작수의 최솟값을 출력한다.
- * 		원숭이는 말처럼 K번만 움직일 수 있으며, 상하좌우로 움직일 수 있다.
- * 		말처럼 움직일 때는 벽을 넘을 수 있다.
- * 		격자판의 맨 왼쪽 위에서 시작해서 맨 오른쪽 아래까지 가야한다.
- * 
- * 2. 해결 전략
- * 		W*H*(K+1) 의 메모리 배열을 만들어 DP를 수행한다.
- * 
- * 3. 주의점
- * 
- * */
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
-
-	public static void main(String[] args) throws Exception {
-		
+	static int K,W,H;
+	static int[][][] map;
+	static int[] dx1 = {-1,1,0,0};
+	static int[] dy1 = {0,0,-1,1};
+	static int[] dx2 = {-1,-2,-2,-1,1,2,2,1};
+	static int[] dy2 = {-2,-1,1,2,2,1,-1,-2};
+	static int min = Integer.MAX_VALUE;
+	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		StringBuilder sb = new StringBuilder();
+		K = Integer.parseInt(br.readLine());
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		W = Integer.parseInt(st.nextToken());
+		H = Integer.parseInt(st.nextToken());
+		map= new int[H][W][K+1];
+		boolean[][][] visited = new boolean[H][W][K+1];
 		
-		int K = Integer.parseInt(br.readLine());
-		st = new StringTokenizer(br.readLine());
-		int H = Integer.parseInt(st.nextToken());
-		int W = Integer.parseInt(st.nextToken());
-		
-		int[][] map = new int[W][H];
-		for (int i = 0; i < W; i++) {
+		for(int i=0;i<H;i++) {
 			st = new StringTokenizer(br.readLine());
-			for (int j = 0; j < H; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
-			}
-		}
-		
-		int[] dxsHorse = {-1, -2, -2, -1, 1, 2, 2, 1}; // 오른쪽에서 반시계방향으로
-		int[] dysHorse = {2, 1, -1, -2, -2, -1, 1, 2};
-		int[] dxs = {1, -1, 0, 0};
-		int[] dys = {0, 0, 1, -1};
-		
-		Queue<int[]> q = new ArrayDeque<int[]>();
-		
-		int[][][] mem = new int[W][H][K + 1];
-		mem[0][0][K] = 1;
-		q.offer(new int[] {1, 0, 0, K});
-		while(!q.isEmpty()) {
-			
-			int[] d = q.poll();
-			int r = d[1];
-			int c = d[2];
-			int k = d[3];
-			
-			if (r == W - 1 && c == H - 1)
-				break;
-			
-			if (k > 0)
-				for (int i = 0; i < 8; i++) {
-					int nx = r + dxsHorse[i];
-					int ny = c + dysHorse[i];
-					
-					if (nx >= 0 && nx < W && ny >= 0 && ny < H && map[nx][ny] == 0) {
-						if (mem[nx][ny][k - 1] == 0 || mem[nx][ny][k - 1] > mem[r][c][k] + 1) {
-							mem[nx][ny][k - 1] = mem[r][c][k] + 1;
-							q.offer(new int[] {mem[nx][ny][k - 1], nx, ny, k - 1});
-						}
-					}
-				}
-			for (int i = 0; i < 4; i++) {
-				int nx = r + dxs[i];
-				int ny = c + dys[i];
-				if (nx >= 0 && nx < W && ny >= 0 && ny < H && map[nx][ny] == 0) {
-					if (mem[nx][ny][k] == 0 || mem[nx][ny][k] > mem[r][c][k] + 1) {
-						mem[nx][ny][k] = mem[r][c][k] + 1;
-						q.offer(new int[] {mem[nx][ny][k], nx, ny, k});
+			for(int j=0;j<W;j++) {
+				map[i][j][0] = Integer.parseInt(st.nextToken());
+				if(map[i][j][0]==1) {
+					for(int k=0;k<=K;k++) {
+						map[i][j][k]=-1;
+						visited[i][j][k]=true;
 					}
 				}
 			}
 		}
-		
-		int min = Integer.MAX_VALUE;
-		for (int i = 0; i <= K; i++) {
-			if (mem[W - 1][H - 1][i] > 0 && min > mem[W - 1][H - 1][i])
-				min = mem[W - 1][H - 1][i];
+		if(W==1&&H==1) {
+			if(map[0][0][0]==0) {
+				System.out.println(0);
+				return;
+			}else {
+				System.out.println(-1);
+				return;
+			}
+		}
+		BFS(visited);
+//		for(int i=0;i<=K;i++) {
+//			for(int j=0;j<H;j++) {
+//				for(int k=0;k<W;k++) {
+//					System.out.print(map[j][k][i]+" ");
+//				}
+//				System.out.println();
+//			}
+//			System.out.println();
+//		}
+		int result=Integer.MAX_VALUE;
+		for(int i=0;i<=K;i++) {
+			if(map[H-1][W-1][i]>0) {
+				result = Math.min(result, map[H-1][W-1][i]);
+			}
+		}
+		if(result==Integer.MAX_VALUE) {
+			System.out.println(-1);
+		}else {
+			System.out.println(result);
 		}
 		
-		System.out.println(min == Integer.MAX_VALUE ? -1 : min - 1);
 	}
+	private static void BFS(boolean[][][] visited) {
+		Queue<int[]> queue = new LinkedList<>();
+		queue.add(new int[] {0,0,0,0}); //x,y,num,k
+		visited[0][0][0]=true;
+		while(!queue.isEmpty()) {
+			int[] tmp = queue.poll();
+			for(int i=0;i<4;i++) {
+				int nx = tmp[0]+dx1[i];
+				int ny = tmp[1]+dy1[i];
+				if(nx>=0&&nx<H&&ny>=0&&ny<W&&!visited[nx][ny][tmp[3]]) {
+					map[nx][ny][tmp[3]] = tmp[2]+1;
+					visited[nx][ny][tmp[3]]=true;
+					queue.add(new int[] {nx,ny,tmp[2]+1,tmp[3]});
+				}
+			}
+			if(tmp[3]<K) {
+				for(int i=0;i<8;i++) {
+					int nx = tmp[0]+dx2[i];
+					int ny = tmp[1]+dy2[i];
+					if(nx>=0&&nx<H&&ny>=0&&ny<W&&!visited[nx][ny][tmp[3]+1]&&map[nx][ny][tmp[3]+1]!=-1) {
+						map[nx][ny][tmp[3]+1] = tmp[2]+1;
+						visited[nx][ny][tmp[3]+1]=true;
+						queue.add(new int[] {nx,ny,tmp[2]+1,tmp[3]+1});
+					}
+				}
+			}
+			
+		}
+		
+	}
+	
 }
