@@ -22,10 +22,27 @@ public class Main {
 		st = new StringTokenizer(br.readLine());
 		for (int i = 0; i < M; i++) {
 			int tmp = Integer.parseInt(st.nextToken());
-			sb.append(Arrays.binarySearch(seq, tmp) >= 0 ? 1 : 0).append("\n");
+			sb.append(binarySearch(seq, tmp) >= 0 ? 1 : 0).append("\n");
 		}
 
 		System.out.println(sb);
+	}
+	
+	static int binarySearch(int[] arr, int n) {
+		
+		int l = 0;
+		int r = arr.length - 1;
+		int mid = (l + r) / 2;
+		while(arr[mid] != n && l <= r) {
+			if (arr[mid] < n) {
+				l = mid + 1;
+			} else {
+				r = mid - 1;
+			}
+			mid = (l + r) / 2;
+		}
+		
+		return arr[mid] == n ? mid : -1;
 	}
 
 
