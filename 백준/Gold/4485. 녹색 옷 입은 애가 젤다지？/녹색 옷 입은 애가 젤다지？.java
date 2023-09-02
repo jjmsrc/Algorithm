@@ -3,18 +3,6 @@ import java.io.*;
 
 public class Main {
 
-	static class Bus {
-		int to;
-		int cost;
-		Bus next;
-
-		public Bus(int to, int cost, Bus next) {
-			this.to = to;
-			this.cost = cost;
-			this.next = next;
-		}
-	}
-
 	private static int calcMinCost(int[][] grid) {
 
 		int N = grid.length;
