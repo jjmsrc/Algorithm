@@ -1,82 +1,102 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
-
-	private static class Dice {
-		int[] nums;
-		int[] n = { 2, 1, 5, 6 }; // 1 5 6 2
-		int[] s = { 6, 5, 1, 2 }; // 5 1 2 6
-		int[] e = { 3, 1, 4, 6 }; // 1 4 6 3
-		int[] w = { 6, 4, 1, 3 }; // 4 1 3 6
-
-		Dice() {
-			nums = new int[7];
-		}
-
-		public int[] move(int dir, int num) {
-
-			int[] swapi = null;
-			if (dir == 1)
-				swapi = e;
-			else if (dir == 2)
-				swapi = w;
-			else if (dir == 3)
-				swapi = n;
-			else if (dir == 4)
-				swapi = s;
-
-			int tmp = nums[swapi[0]];
-			for (int i = 0; i < 3; i++) {
-				nums[swapi[i]] = nums[swapi[i + 1]];
-			}
-			nums[swapi[3]] = tmp;
-
-			if (num != 0)
-				nums[6] = num;
-
-			return new int[] { nums[1], nums[6] }; // {윗면, 뒷면}
-		}
-	}
-
-	public static void main(String[] args) throws Exception {
+	static int N,M,x,y,K;
+	static int[][] map;
+	static int[] input;
+	static int[] dice = {0,0,0,0,0,0}; //위 오른쪽 밑 왼쪽 앞쪽 뒤쪽
+	static int[] dx = {0,0,0,-1,1}; //동서북남
+	static int[] dy = {0,1,-1,0,0};
+	static int up = 0;
+	static int f = 4;
+	static int down=2;
+	static int b = 5;
+	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		StringBuilder sb = new StringBuilder();
-
-		st = new StringTokenizer(br.readLine());
-		int R = Integer.parseInt(st.nextToken());
-		int C = Integer.parseInt(st.nextToken());
-		int x = Integer.parseInt(st.nextToken());
-		int y = Integer.parseInt(st.nextToken());
-		int K = Integer.parseInt(st.nextToken());
-
-		int[][] grid = new int[R][C];
-		for (int i = 0; i < R; i++) {
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		x = Integer.parseInt(st.nextToken())+1;
+		y = Integer.parseInt(st.nextToken())+1;
+		K = Integer.parseInt(st.nextToken());
+		map = new int[N+1][M+1];
+		input = new int[K];
+		for(int i=1;i<=N;i++) {
 			st = new StringTokenizer(br.readLine());
-			for (int j = 0; j < C; j++) {
-				grid[i][j] = Integer.parseInt(st.nextToken());
+			for(int j=1;j<=M;j++) {
+				map[i][j]=Integer.parseInt(st.nextToken());
 			}
 		}
-
-		Dice dice = new Dice();
-		int[] dxs = { 0, 0, 0, -1, 1 }; // 동 서 북 남
-		int[] dys = { 0, 1, -1, 0, 0 };
-
 		st = new StringTokenizer(br.readLine());
-		for (int i = 0; i < K; i++) {
-			int d = Integer.parseInt(st.nextToken());
-			int nx = x + dxs[d];
-			int ny = y + dys[d];
-			if (nx < 0 || nx >= R || ny < 0 || ny >= C)
-				continue;
-			int[] ans = dice.move(d, grid[nx][ny]);
-			grid[nx][ny] = grid[nx][ny] == 0 ? ans[1] : 0;
-			x = nx;
-			y = ny;
-			sb.append(ans[0]).append("\n");
+//		System.out.println(Arrays.toString(dice));
+		for(int i=0;i<K;i++) {
+			if(move(Integer.parseInt(st.nextToken()))) {
+				bw.write(dice[up]+"\n");
+			}
 		}
-
-		System.out.println(sb.toString());
+		bw.flush();
+	}
+	private static boolean move(int num) {
+		int nx = x+dx[num];
+		int ny = y+dy[num];
+		if(nx<=0||ny<=0||nx>N||ny>M) return false;
+		if(num==1) {
+			right();
+		}else if(num==2) {
+			left();
+		}else if(num==3) {
+			back();
+		}else {
+			front();
+		}
+//		System.out.println(Arrays.toString(dice));
+//		System.out.println(map[nx][ny]);
+		if(map[nx][ny]==0) {
+			map[nx][ny]=dice[down];
+		}else {
+			dice[down] = map[nx][ny];
+			map[nx][ny]=0;
+		}
+//		System.out.println(Arrays.toString(dice));
+//		System.out.println();
+		x=nx;
+		y=ny;
+		return true;
+	}
+	private static void right() {
+		int tmp = dice[3];
+		for(int i=3;i>0;i--) {
+			dice[i]=dice[i-1];
+		}
+		dice[0]=tmp;
+	}
+	private static void left() {
+		int tmp = dice[0];
+		for(int i=0;i<3;i++) {
+			dice[i]=dice[i+1];
+		}
+		dice[3]=tmp;
+	}
+	private static void front() {
+		
+		int tmp = dice[up];
+		dice[up] = dice[b];
+		dice[b] = dice[down];
+		dice[down] = dice[f];
+		dice[f] = tmp;
+	}
+	private static void back() {
+		int tmp = dice[up];
+		dice[up] = dice[f];
+		dice[f] = dice[down];
+		dice[down] = dice[b];
+		dice[b] = tmp;
 	}
 }
