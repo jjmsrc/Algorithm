@@ -5,74 +5,61 @@ import java.util.*;
 // -> 폭발 문자열은 같은 문자를 2개이상 포함하지 않는다.
 
 public class Main {
-	
-	private static class Node {
-		char c;
-		Node next;
-	}
-	
+
 	public static void main(String[] args) throws Exception {
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-		Stack<Character> left = new Stack<>();
-		Stack<Character> right = new Stack<>();
+		List<Character> seq = new LinkedList<>();
 
-		String seq = br.readLine().trim();
-		right.push('*');
-		for (int i = seq.length() - 1; i >= 0; i--) {
-			right.push(seq.charAt(i));
+		String line = br.readLine().trim();
+		for (char c : line.toCharArray()) {
+			seq.add(c);
 		}
-		char[] bomb = br.readLine().trim().toCharArray();
-		
-		while(!right.isEmpty()) {
-			char c = right.pop();
-			
-			if (c == bomb[0]) { // 첫 문자가 폭발 문자열과 같다면
-				
-				// 폭발 문자열인지 확인
+        seq.add('*');
+
+		line = br.readLine().trim();
+		char[] bomb = line.toCharArray();
+
+		ListIterator<Character> it = seq.listIterator();
+
+		while (it.hasNext()) {
+			char c = it.next();
+			if (c == bomb[0]) { // 첫 문자가 같다면
+				// 문자열 길이만큼 체크
 				int i;
-				for (i = 0; i < bomb.length; i++) {
-					if (c == bomb[i]) {
-						left.push(c);
-						if (!right.isEmpty())
-							c = right.pop();
-					} else {
-						break;
-					}
+				for (i = 0; i < bomb.length && c == bomb[i] && it.hasNext(); i++, c = it.next())
+					;
+				it.previous();
+				// 맨 끝 문자열일 경우 처리
+				if (i == bomb.length - 1 && c == bomb[i]) {
+					i = bomb.length;
+					it.next();
 				}
-				
-				// 폭발 문자열이라면
+				// 만약 폭발문자열이 맞다면
 				if (i == bomb.length) {
-					// 제거
+					// 문자열 제거
 					for (int j = 0; j < bomb.length; j++) {
-						left.pop();
+						it.previous();
+						it.remove();
 					}
-					// ... c c44
-					right.push(c);
-					// 해당 구간에서 만들어진 폭발 문자열을 재검사, 되돌아가기
-					for (int j = 0; j < bomb.length && !left.isEmpty(); j++) {
-						c = left.pop();
-						right.push(c);
+					// 합쳐진 경우 고려해서 되돌아가기
+					for (int j = 0; j < bomb.length && it.hasPrevious(); j++) { 
+						it.previous();
 					}
-				} else { // 폭발 문자열이 아니라면
-					right.push(c);
 				}
-			} else {
-				left.push(c);
 			}
 		}
-		
-		left.pop();
-		if (left.size() == 0) {
+
+		seq.remove(seq.size() - 1);
+		if (seq.size() == 0) {
 			System.out.println("FRULA");
 		} else {
-			char[] out = new char[left.size()];
-			for (int i = left.size() - 1; i >= 0; i--) {
-				out[i] = left.pop();
+			StringBuilder sb = new StringBuilder();
+			for (char c : seq) {
+				sb.append(c);
 			}
-			
-			System.out.println(out);
+			System.out.println(sb);
 		}
 
 	}
