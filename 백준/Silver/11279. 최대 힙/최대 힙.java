@@ -1,4 +1,7 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Main {
 
@@ -65,20 +68,23 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		int n = sc.nextInt();
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		
+		int n = Integer.parseInt(br.readLine());
 
 		Heap heap = new Heap(n + 1);
 
 		for (int i = 0; i < n; i++) {
-			int a = sc.nextInt();
+			int a = Integer.parseInt(br.readLine());
 			if (a == 0) {
 				int b = heap.poll();
-				System.out.println(b == Integer.MIN_VALUE ? 0 : b);
+				sb.append(b == Integer.MIN_VALUE ? 0 : b).append("\n");
 			} else {
 				heap.offer(a);
 			}
 		}
+		System.out.println(sb);
 	}
 }
