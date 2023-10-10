@@ -20,10 +20,12 @@ public class Main {
 				students[is] = Integer.parseInt(st.nextToken());
 			}
 			
+			int cnt = 0;
+			
 			int[] sStatus = new int[N + 1]; // 0: 결정 전, 1: 팀 선택 중, 2: 팀 선택 완료, 3: 팀 선택 실패
 			sStatus[0] = 2;
 			
-			Stack<Integer> stack = new Stack<Integer>();
+			ArrayDeque<Integer> stack = new ArrayDeque<Integer>();
 			for (int i = 1; i <= N; i++) {
 				if (sStatus[i] == 0) {
 					stack.push(i);
@@ -35,24 +37,15 @@ public class Main {
 						ni = students[ni];
 					}
 					if (sStatus[ni] == 1) {
-						while(!stack.isEmpty() && stack.peek() != ni) {
-							int pi = stack.pop();
-							sStatus[pi] = 2;
-						}
-						int pi = stack.pop();
-						sStatus[pi] = 2;
+						while(!stack.isEmpty() && stack.peek() != ni) 
+							sStatus[stack.pop()] = 2;
+						sStatus[stack.pop()] = 2;
 					}
 					while(!stack.isEmpty()) {
-						int pi = stack.pop();
-						sStatus[pi] = 3;
+						sStatus[stack.pop()] = 3;
+						cnt++;
 					}
 				}
-			}
-			
-			int cnt = 0;
-			for (int i = 1; i <= N; i++) {
-				if (sStatus[i] == 3)
-					cnt++;
 			}
 			
 			sb.append(cnt).append("\n");
