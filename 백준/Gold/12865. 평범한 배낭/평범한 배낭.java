@@ -12,30 +12,32 @@ public class Main {
 		int N = Integer.parseInt(st.nextToken());
 		int K = Integer.parseInt(st.nextToken());
 		
-		int[][] items = new int[N + 1][2];
-		for (int i = 1; i <= N; i++) {
+		int[][] items = new int[N][2];
+		for (int i = 0; i < items.length; i++) {
 			st = new StringTokenizer(br.readLine());
 			items[i][0] = Integer.parseInt(st.nextToken());
 			items[i][1] = Integer.parseInt(st.nextToken());
 		}
 		
-		int[][] dp = new int[N + 1][K + 1];
+		int[][] dp = new int[2][K + 1];
 		
-		for (int i = 1; i <= N; i++) {
+		for (int i = 0; i < N; i++) {
+			int curr = i & 1;
+			int pre = curr ^ 1;
+			
 			int w = items[i][0];
 			int v = items[i][1];
 			
 			for (int j = 1; j <= K; j++) {
-				for (int ip = 0; ip < i; ip++) {
-					dp[i][j] = Math.max(dp[i][j], dp[ip][j]);
-					if (j >= w) {
-						dp[i][j] = Math.max(dp[i][j], dp[ip][j - w] + v);
-					}
+				if (j >= w) {
+					dp[curr][j] = Math.max(dp[pre][j], dp[pre][j - w] + v);
+				} else {
+					dp[curr][j] = dp[pre][j];
 				}
 			}
 		}
 		
-		System.out.println(dp[N][K]);
+		System.out.println(dp[(N - 1) % 2][K]);
 
 	}
 
