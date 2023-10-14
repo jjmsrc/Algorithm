@@ -19,25 +19,19 @@ public class Main {
 			items[i][1] = Integer.parseInt(st.nextToken());
 		}
 		
-		int[][] dp = new int[2][K + 1];
+		int[] dp = new int[K + 1];
 		
 		for (int i = 0; i < N; i++) {
-			int curr = i & 1;
-			int pre = curr ^ 1;
-			
 			int w = items[i][0];
 			int v = items[i][1];
 			
-			for (int j = 1; j <= K; j++) {
-				if (j >= w) {
-					dp[curr][j] = Math.max(dp[pre][j], dp[pre][j - w] + v);
-				} else {
-					dp[curr][j] = dp[pre][j];
-				}
+			for (int j = K; j >= w; j--) {
+				if (dp[j] < dp[j - w] + v)
+					dp[j] = dp[j - w] + v;
 			}
 		}
 		
-		System.out.println(dp[(N - 1) % 2][K]);
+		System.out.println(dp[K]);
 
 	}
 
