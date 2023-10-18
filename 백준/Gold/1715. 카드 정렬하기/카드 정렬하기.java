@@ -1,28 +1,30 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.PriorityQueue;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-	public static void main(String[] args) throws NumberFormatException, IOException {
+	
+	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int N = Integer.parseInt(br.readLine());
-		PriorityQueue<Integer> pq = new PriorityQueue<>();
-		for(int i=0;i<N;i++) {
-			pq.add(Integer.parseInt(br.readLine()));
+		StringTokenizer st;
+
+		st = new StringTokenizer(br.readLine());
+		int N = Integer.parseInt(st.nextToken());
+		
+		PriorityQueue<Integer> pq = new PriorityQueue<Integer>();
+		
+		for (int i = 0; i < N; i++) {
+			pq.offer(Integer.parseInt(br.readLine()));
 		}
-		int result=0;
-		while(!pq.isEmpty()) {
-			int sum=0;
-			sum+=pq.poll();
-			if(!pq.isEmpty()) {
-				sum+=pq.poll();
-			}else {
-				break;
-			}
-			result+=sum;
-			pq.add(sum);
+		
+		int sum = 0;
+		for (int i = 1; i < N; i++) {
+			int a = pq.poll();
+			int b = pq.poll();
+			int c = (a + b);
+			sum += c;
+			pq.offer(c);
 		}
-		System.out.println(result);
+		
+		System.out.println(sum);
 	}
 }
