@@ -78,11 +78,6 @@ public class Main {
 							maxEmpty = cntEmpty;
 							pos[0] = x;
 							pos[1] = y;
-						} else if (maxEmpty == cntEmpty) { // 2번 조건 (다수)
-							if (pos[0] > x || (pos[0] == x && pos[1] > y)) { // 3번 조건
-								pos[0] = x;
-								pos[1] = y;
-							}
 						}
 					}
 				}
