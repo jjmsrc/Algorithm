@@ -1,5 +1,6 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
 
@@ -104,23 +105,8 @@ public class Main {
 						}
 					}
 				}
-				switch(nearFs) {
-				case 0:
-					break;
-				case 1:
-					sum += 1;
-					break;
-				case 2:
-					sum += 10;
-					break;
-				case 3:
-					sum += 100;
-					break;
-				case 4:
-					sum += 1000;
-					break;
-				}
-//				sum += Math.pow(10, nearFs);
+
+				sum += Math.pow(10, nearFs == -1 ? 0 : nearFs - 1);
 			}
 		}
 
