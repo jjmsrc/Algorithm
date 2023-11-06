@@ -6,6 +6,7 @@ public class Main {
 	private static final int MAX_DIST = 10_000_000;
 	private static int N;
 	private static int[][] adjMat;
+	private static int ans;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -21,31 +22,31 @@ public class Main {
 			}
 		}
 		
-		int minDist = MAX_DIST;
-		
+		ans = MAX_DIST;
 		for (int i = 0; i < N; i++) {
-			minDist = Math.min(minDist, findMinDist(i, i, 0, new boolean[N]));
+			findMinDist(i, i, 0, 0, new boolean[N]);
 		}
-		
-		System.out.println(minDist);
+		System.out.println(ans);
 	}
 	
-	private static int findMinDist(int start, int curr, int cnt, boolean[] visited) {
+	private static void findMinDist(int start, int curr, int cnt, int sum, boolean[] visited) {
 		if (cnt == N) {
-			if (curr == start)
-				return 0;
+			if (curr == start) {
+				if (ans > sum)
+					ans = sum;
+				return;
+			}
 			else
-				return MAX_DIST;
+				return;
 		} else if (cnt > 0 && curr == start)
-			return MAX_DIST;
+			return;
 		int min = MAX_DIST;
 		for (int i = 0; i < N; i++) {
-			if (!visited[i] && adjMat[curr][i] > 0) {
+			if (!visited[i] && adjMat[curr][i] > 0 && ans > sum + adjMat[curr][i]) {
 				visited[i] = true;
-				min = Math.min(min, findMinDist(start, i, cnt + 1, visited) + adjMat[curr][i]);
+				findMinDist(start, i, cnt + 1, sum + adjMat[curr][i], visited);
 				visited[i] = false;
 			}
 		}
-		return min;
 	}
 }
