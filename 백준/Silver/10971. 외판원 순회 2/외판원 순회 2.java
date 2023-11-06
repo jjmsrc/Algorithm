@@ -1,74 +1,51 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-	static class Edge{
-		int to;
-		int weight;
-		
-		public Edge(int to, int weight) {
-			super();
-			this.to = to;
-			this.weight = weight;
-		}
+	
+	private static final int MAX_DIST = 10_000_000;
+	private static int N;
+	private static int[][] adjMat;
 
-		@Override
-		public String toString() {
-			return "Edge [to=" + to + ", weight=" + weight + "]";
-		}
-		
-	}
-	static ArrayList<Edge>[] edgeList;
-	static int N;
-	static long min = Long.MAX_VALUE;
-	public static void main(String[] args) throws NumberFormatException, IOException {
+	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		N = Integer.parseInt(br.readLine());
-		edgeList = new ArrayList[N+1];
-		for(int i=1;i<=N;i++) {
-			edgeList[i]=new ArrayList<>();
-		}
-		for(int i=1;i<=N;i++) {
-			StringTokenizer st = new StringTokenizer(br.readLine());
-			for(int j=1;j<=N;j++) {
-				int weight = Integer.parseInt(st.nextToken());
-				if(i!=j&&weight!=0) {
-					edgeList[i].add(new Edge(j,weight));
-				}
-				
-			}
-		}
-		for(int i=1;i<=N;i++) {
-			dfs(i,i,new boolean[N+1],1,0);
-//			System.out.println();
-		}
-		System.out.println(min);
-	}
-	private static void dfs(int start,int cur,boolean[] visited,int cnt,long sum) {
-//		System.out.println(Arrays.toString(visited));
-//		System.out.println(start+","+cur+","+cnt+","+sum);
-		if(cnt==N) {
-			for(Edge e : edgeList[cur]) {
-				if(e.to==start) {
-//					System.out.println(sum+e.weight);
-					min = Math.min(sum+e.weight, min);
-					
-					return;
-				}
-			}
-		}
-		for(Edge e : edgeList[cur]) {
-			if(!visited[e.to]&&e.to!=start) {
-				visited[e.to] = true;
-				dfs(start,e.to,visited,cnt+1,sum+e.weight);
-				visited[e.to]=false;
-			}
-			
-		}
+		StringTokenizer st;
 
+		N = Integer.parseInt(br.readLine());
+		adjMat = new int[N][N];
+		
+		for (int i = 0; i < N; i++) {
+			st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < N; j++) {
+				adjMat[i][j] = Integer.parseInt(st.nextToken());
+			}
+		}
+		
+		int minDist = MAX_DIST;
+		
+		for (int i = 0; i < N; i++) {
+			minDist = Math.min(minDist, findMinDist(i, i, 0, new boolean[N]));
+		}
+		
+		System.out.println(minDist);
+	}
+	
+	private static int findMinDist(int start, int curr, int cnt, boolean[] visited) {
+		if (cnt == N) {
+			if (curr == start)
+				return 0;
+			else
+				return MAX_DIST;
+		} else if (cnt > 0 && curr == start)
+			return MAX_DIST;
+		int min = MAX_DIST;
+		for (int i = 0; i < N; i++) {
+			if (!visited[i] && adjMat[curr][i] > 0) {
+				visited[i] = true;
+				min = Math.min(min, findMinDist(start, i, cnt + 1, visited) + adjMat[curr][i]);
+				visited[i] = false;
+			}
+		}
+		return min;
 	}
 }
