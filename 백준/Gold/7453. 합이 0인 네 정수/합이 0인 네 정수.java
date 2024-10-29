@@ -18,6 +18,10 @@ public class Main {
 			}
 		}
 		
+		for (int i = 0; i < nums.length; i++) {
+			Arrays.sort(nums[i]);
+		}
+		
 		ans = solve(n, nums);
 		
 		System.out.println(ans);
