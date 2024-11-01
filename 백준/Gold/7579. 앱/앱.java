@@ -30,25 +30,26 @@ public class Main {
 
 	private static int solve(int nApps, int memSize, int[] appMems, int[] appCosts) {
 		
-		int totalMemSum = 0;
-		int totalCostSum = 0;
-		int memLimit = 0;
-		
+		int totalCost = 0;
 		for (int i = 0; i < nApps; i++) {
-			totalMemSum += appMems[i];
-			totalCostSum += appCosts[i];
+			totalCost += appCosts[i];
 		}
-		memLimit = totalMemSum - memSize;
 		
-		int[] c = new int[memLimit + 1]; //  sum of costs by sum of memories
+		int[] m = new int[totalCost + 1]; //  sum of memories by sum of costs
 		
 		for (int i = 0; i < nApps; i++) {
-			int m = appMems[i];
-			for (int mi = memLimit; mi >= m; mi--) {
-				c[mi] = Math.max(c[mi], c[mi - m] + appCosts[i]);
+			int c = appCosts[i];
+			for (int ci = totalCost; ci >= c; ci--) {
+				m[ci] = Math.max(m[ci], m[ci - c] + appMems[i]);
 			}
 		}
 		
-		return totalCostSum - c[memLimit];
+		for (int i = 0; i <= totalCost; i++) {
+			if (m[i] >= memSize) {
+				return i;
+			}
+		}
+		
+		return 0;
 	}
 }
