@@ -5,17 +5,57 @@ import java.util.StringTokenizer;
 
 public class Main {
 	
-	private static class Node {
-		int from;
-		int to;
-		long sum;
-		int subNodeCnt;
-		Node(int from, int to, long sum, int subNodeCnt) {
-			this.from = from;
-			this.to = to;
-			this.sum = sum;
-			this.subNodeCnt = subNodeCnt;
+	private static class SegmentTree {
+		
+		private int n;
+		private long[] nums;
+		private long[] tree;
+		
+		void init(int n, long[] nums) {
+			this.n = n;
+			this.nums = nums;
+			// 데이터의 개수가 N일때, N보다 크고 가장 가까운 2의 제곱수의 2배 값이 필요함. 
+			// 가장 가깝고 큰 2의 제곱수를 k라 하면, k/2 < n < k 이므로, n의 최솟값인 k/2가 2*k가 되기 위해서 4를 곱해야 함.
+			tree = new long[n * 4]; 
+			init(1, n, 1);
+			this.nums = null;
 		}
+		
+		private long init(int left, int right, int ti) {
+			if (left == right) return tree[ti] = nums[left];
+			int mid = (left + right) / 2;
+			return tree[ti] = init(left, mid, ti * 2) + init(mid + 1, right, ti * 2 + 1);
+		}
+		
+		long sum(int start, int end) {
+			return sum(1, n, 1, start, end);
+		}
+		
+		private long sum(int left, int right, int ti, int start, int end) {
+			if (left >= start && right <= end) return tree[ti];
+			if (left > end || right < start) return 0;
+			int mid = (left + right) / 2;
+			return sum(left, mid, ti * 2, start, end) + sum(mid + 1, right, ti * 2 + 1, start, end);
+		}
+		
+		void update(int idx, long num) {
+			update(1, n, 1, idx, num);
+		}
+		
+		private long update(int left, int right, int ti, int idx, long num) {
+			if (left == right) {
+				long diff = tree[ti] - num;
+				tree[ti] = num;
+				return diff;
+			}
+			int mid = (left + right) / 2;
+			long diff;
+			if (idx <= mid) diff = update(left, mid, ti * 2, idx, num);
+			else diff = update(mid + 1, right, ti * 2 + 1, idx, num);
+			tree[ti] -= diff;
+			return diff;
+		}
+		
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -29,26 +69,25 @@ public class Main {
 		int M = Integer.parseInt(st.nextToken()); // 수의 변경이 일어나는 횟수
 		int K = Integer.parseInt(st.nextToken()); // 구간의 합을 구하는 횟수
 		
-		// 누적합을 배열 형태로 구하기
-		long[] sumArr = new long[N + 1];
+		long[] nums = new long[N + 1];
 		for (int i = 1; i <= N; i++) {
-			long num = Long.parseLong(br.readLine());
-			sumArr[i] = sumArr[i - 1] + num;
+			nums[i] = Long.parseLong(br.readLine());
 		}
 		
-		// 세그먼트 트리 형태 합 구하기
-		ArrayList<Node> segmentTree = makeSegmentTree(N, sumArr);
-
-		// 명령어 입력받기
+		// 세그먼트 트리 초기화
+		SegmentTree segmentTree = new SegmentTree();
+		segmentTree.init(N, nums);
+		
+		// 명령어 입력
 		for (int i = 0, cnt = M + K; i < cnt; i++) {
 			st = new StringTokenizer(br.readLine());
 			int cmd = Integer.parseInt(st.nextToken()); // 명령어
 			int arg1 = Integer.parseInt(st.nextToken());
 			long arg2 = Long.parseLong(st.nextToken());
 			if (cmd == 1) {
-				updateNum(segmentTree, 0, arg1, arg2);
+				segmentTree.update(arg1, arg2);
 			} else if (cmd == 2) {
-				sb.append(rangeSum(segmentTree, 0, arg1, arg2)).append('\n');
+				sb.append(segmentTree.sum(arg1, (int)arg2)).append('\n');
 			}
 		}
 		
@@ -56,98 +95,4 @@ public class Main {
 
 	}
 
-	
-
-	private static ArrayList<Node> makeSegmentTree(int n, long[] sumArr) {
-		ArrayList<Node> tree = new ArrayList<Node>();
-		
-		addSegmentNode(sumArr, 1, n, tree);
-		
-		return tree;
-		
-	}
-	
-	private static int addSegmentNode(long[] sumArr, int from, int to, ArrayList<Node> tree) {
-		
-		if (from > to) {
-			return 0;
-		}
-		else if (from == to) {
-			tree.add(new Node(from, to, sumArr[to] - sumArr[from - 1], 1));
-			return 1;
-		} else {
-			int cnt = 1;
-			int mid = (from + to) / 2;
-			Node node = new Node(from, to, sumArr[to] - sumArr[from - 1], 0);
-			tree.add(node);
-			cnt += addSegmentNode(sumArr, from, mid, tree);
-			cnt += addSegmentNode(sumArr, mid + 1, to, tree);
-//			System.out.printf("===add2: %d %d %d \n", cnt, from, to);
-			return node.subNodeCnt = cnt;
-		}
-	}
-	
-	private static long rangeSum(ArrayList<Node> tree, int idx, int from, long to) {
-		
-//		System.out.printf("rs: %d %d %d \n", idx, from, to);
-		
-		if (from > to)
-			return 0;
-		
-		Node node = tree.get(idx);
-		
-		if (from == node.from && to == node.to) {
-//			System.out.printf("!!!!!!!!rs: %d %d %d \n", idx, from, to);
-			return node.sum;
-		} else {
-			int li = idx + 1;
-			Node leftChild = tree.get(li);
-			int ri = idx + leftChild.subNodeCnt + 1;
-			Node rightChild = tree.get(ri);
-			
-//			System.out.printf("rs: %d %d %d \n", idx, from, to);
-//			System.out.printf("a: %d %d %d \n", aIdx, aSubNode.from, aSubNode.to);
-//			System.out.printf("b: %d %d %d \n", bIdx, bSubNode.from, bSubNode.to);
-			
-			long sum = 0;
-			
-			if (to <= leftChild.to) {
-				sum = rangeSum(tree, li, from, to);
-			} else if (rightChild.from <= from) {
-				sum = rangeSum(tree, ri, from, to);
-			} else {
-				sum += rangeSum(tree, li, from, leftChild.to);
-				sum += rangeSum(tree, ri, rightChild.from, to);
-			}
-			
-			return sum;
-		}
-	}
-	
-	private static long updateNum(ArrayList<Node> tree, int idx, int dest, long newNum) {
-		
-		Node node = tree.get(idx);
-		
-		if (node.from == dest && node.to == dest) {
-			long diff = node.sum - newNum;
-			node.sum = newNum;
-			return diff;
-		}
-		
-		int li = idx + 1;
-		Node leftChild = tree.get(li);
-		int ri = idx + leftChild.subNodeCnt + 1;
-		
-		long diff;
-		
-		if (dest <= leftChild.to) {
-			diff = updateNum(tree, li, dest, newNum);
-		} else { // if (rightChild.from <= dest) {
-			diff = updateNum(tree, ri, dest, newNum);
-		}
-		
-		node.sum -= diff;
-		
-		return diff;
-	}
 }
