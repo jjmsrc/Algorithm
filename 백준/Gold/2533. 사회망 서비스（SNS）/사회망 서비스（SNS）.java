@@ -18,7 +18,6 @@ public class Main {
 	private static int N;
 	private static Node[] list;
 	private static int[] stat;
-	private static int[] cntEdges;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -27,7 +26,6 @@ public class Main {
 		N = Integer.parseInt(br.readLine());
 		
 		list = new Node[N + 1];
-		cntEdges = new int[N + 1];
 		
 		for (int i = 1; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
@@ -35,8 +33,6 @@ public class Main {
 			int v = Integer.parseInt(st.nextToken());
 			list[u] = new Node(v, list[u]);
 			list[v] = new Node(u, list[v]);
-			cntEdges[u]++;
-			cntEdges[v]++;
 		}
 		
 		int ans = solve();
