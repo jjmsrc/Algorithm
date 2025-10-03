@@ -6,9 +6,8 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
 
-		List<Integer> ans = new ArrayList<>();
+		Set<Integer> ans = new HashSet<>();
 		
 		int n = Integer.parseInt(br.readLine());
 		List<Integer> nums = new ArrayList<>(n);
@@ -31,6 +30,7 @@ public class Main {
 		findCommonDivisors(ans, maxCD);
 		
 		StringBuilder sb = ans.stream()
+			.sorted()
 			.collect(StringBuilder::new, (a, b) -> a.append(b).append(' '), (a, b) -> {});
 		
 		System.out.println(sb);
@@ -52,12 +52,15 @@ public class Main {
 		return mb;
 	}
 	
-	private static void findCommonDivisors(List<Integer> ans, int n) {
+	private static void findCommonDivisors(Set<Integer> ans, int n) {
 		
-		for (int i = 2; i <= n; i++) {
-			if (n % i == 0)
-				ans.add(i);
+		for (int i = 1, en = (int)Math.sqrt(n) + 1; i < en; i++) {
+			if (n % i != 0) continue;
+			ans.add(i);
+			ans.add(n / i);
 		}
+		
+		ans.remove(1);
 		
 	}
 
